@@ -8,7 +8,7 @@ class TestResult:
         self.errorCount = self.errorCount + 1
     def summary(self):
         return "%d run, %d failed" % (self.runCount, self.errorCount)
-        
+
 # wasRunがテストの実行状況の保持、テスト実行の２つの責務を持っていたため分離
 class TestCase:
     def __init__(self, name):
@@ -41,6 +41,8 @@ class TestSuite:
     
 class WasRun(TestCase):
     def setUp(self):
+        # LogStringパターン
+        #   テストが決まった順序で呼び出されていることをテスト
         self.log = "setUp "
     def testMethod(self):
         self.log = self.log + "testMethod "
