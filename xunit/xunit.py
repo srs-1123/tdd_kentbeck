@@ -13,18 +13,24 @@ class TestCase:
         result = TestResult()
         result.testStarted()
         self.setUp()
-        method = getattr(self, self.name)
-        method()
+        try:
+            method = getattr(self, self.name)
+            method()
+        except:
+            result.testFailed()
         self.tearDown()
         return result
 
 class TestResult:
     def __init__(self):
-            self.runCount = 0
+        self.runCount = 0
+        self.errorCount = 0
     def testStarted(self):
         self.runCount = self.runCount + 1
+    def testFailed(self):
+        self.errorCount = self.errorCount + 1
     def summary(self):
-        return "%d run, 0 failed" % self.runCount
+        return "%d run, %d failed" % (self.runCount, self.errorCount)
     
 class WasRun(TestCase):
     def setUp(self):
@@ -45,11 +51,22 @@ class TestCaseTest(TestCase):
         test = WasRun("testMethod")
         result = test.run()
         assert("1 run, 0 failed" == result.summary())
+    # testFailedResulFormatting でまず失敗結果を記録する機能を実装
+    # その後で大きなステップであるこのテストを復活させた
     def testFailedResult(self):
         test = WasRun("testBrokenMethod")
         result = test.run()
         assert("1 run, 1 failed" == result.summary())
+    # 例外を出してそれをresultに入れる前に、例外を出さずにresultに記録するテストを追加
+    # (小さなステップ)
+    def testFailedResulFormatting(self):
+        result = TestResult()
+        result.testStarted()
+        result.testFailed()
+        assert("1 run, 1 failed" == result.summary())
 
-TestCaseTest("testTemplateMethod").run()
-TestCaseTest("testResult").run()
-# TestCaseTest("testFailedResult").run()
+# summary() を追加したことでテスト結果をprintできるようになった
+print(TestCaseTest("testTemplateMethod").run().summary())
+print(TestCaseTest("testResult").run().summary())
+print(TestCaseTest("testFailedResult").run().summary())
+print(TestCaseTest("testFailedResulFormatting").run().summary())
